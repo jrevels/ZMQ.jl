@@ -13,7 +13,7 @@ try
 	Socket(ctx, PUB)
 	@assert false
 catch ex
-	@assert typeof(ex) == StateError
+	@assert typeof(ex) == ZMQError
 end
 
 
@@ -26,7 +26,7 @@ ZMQ.close(s)
 try
 	ZMQ.close(s)
 catch ex
-	@assert typeof(ex) == StateError
+	@assert typeof(ex) == ZMQError
 end
 
 

@@ -7,6 +7,8 @@ immutable ZMQError <: Exception
     msg::AbstractString
 end
 
+ZMQError() = ZMQError()
+
 show(io, err::ZMQError) = print(io, "ZMQError: ", err.msg)
 
 zmq_errno() = ccall((:zmq_errno, zmq), Cint, ())

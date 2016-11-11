@@ -33,26 +33,6 @@ else
     end
 end
 
-if VERSION >= v"0.5-" && isdefined(Base, :Filesystem)
-    if is_windows()
-        using Base.Libc: WindowsRawSocket
-    end
-    const _FDWatcher = Base.Filesystem._FDWatcher
-    const _have_good_fdwatcher = true
-elseif VERSION >= v"0.4-" && isdefined(Base, :_FDWatcher)
-    if is_windows()
-        using Base.Libc: WindowsRawSocket
-    end
-    const _FDWatcher = Base._FDWatcher
-    const _have_good_fdwatcher = true
-else
-    if is_windows()
-        using Base: WindowsRawSocket
-    end
-    const _FDWatcher = Base.FDWatcher
-    const _have_good_fdwatcher = false
-end
-
 import Base: convert, get, bytestring, length, size, stride, similar,
              getindex, setindex!, fd, wait, notify, close, connect,
              bind, send, recv
@@ -69,9 +49,9 @@ else
     error("ZMQ not properly installed. Please run Pkg.build(\"ZMQ\")")
 end
 
-#############
-# constants #
-#############
+################
+# package code #
+################
 
 include("predefined_constants.jl")
 include("ZMQError.jl")

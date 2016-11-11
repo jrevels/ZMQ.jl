@@ -11,7 +11,7 @@ type Context
     function Context()
         p = ccall((:zmq_ctx_new, zmq), Ptr{Void},  ())
         if p == C_NULL
-            throw(ZMQError(zmq_strerror()))
+            throw(ZMQError())
         end
         zctx = new(p, Array(Socket,0))
         finalizer(zctx, close)
@@ -30,7 +30,7 @@ function close(ctx::Context)
         end
         rc = ccall((:zmq_ctx_destroy, zmq), Cint,  (Ptr{Void},), data)
         if rc != 0
-            throw(ZMQError(zmq_strerror()))
+            throw(ZMQError())
         end
     end
 end
@@ -39,7 +39,7 @@ term(ctx::Context) = close(ctx)
 function get(ctx::Context, option::Integer)
     val = ccall((:zmq_ctx_get, zmq), Cint, (Ptr{Void}, Cint), ctx.data, option)
     if val < 0
-        throw(ZMQError(zmq_strerror()))
+        throw(ZMQError())
     end
     return val
 end
@@ -47,6 +47,6 @@ end
 function set(ctx::Context, option::Integer, value::Integer)
     rc = ccall((:zmq_ctx_set, zmq), Cint, (Ptr{Void}, Cint, Cint), ctx.data, option, value)
     if rc != 0
-        throw(ZMQError(zmq_strerror()))
+        throw(ZMQError())
     end
 end

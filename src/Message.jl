@@ -11,7 +11,7 @@ type Message <: AbstractArray{UInt8,1}
         zmsg.handle = C_NULL
         rc = ccall((:zmq_msg_init, zmq), Cint, (Ptr{Message},), &zmsg)
         if rc != 0
-            throw(ZMQError(zmq_strerror()))
+            throw(ZMQError())
         end
         finalizer(zmsg, close)
         return zmsg
@@ -22,7 +22,7 @@ type Message <: AbstractArray{UInt8,1}
         zmsg.handle = C_NULL
         rc = ccall((:zmq_msg_init_size, zmq), Cint, (Ptr{Message}, Csize_t), &zmsg, len)
         if rc != 0
-            throw(ZMQError(zmq_strerror()))
+            throw(ZMQError())
         end
         finalizer(zmsg, close)
         return zmsg
@@ -37,7 +37,7 @@ type Message <: AbstractArray{UInt8,1}
         zmsg.handle = gc_protect_handle(origin)
         rc = ccall((:zmq_msg_init_data, zmq), Cint, (Ptr{Message}, Ptr{T}, Csize_t, Ptr{Void}, Ptr{Void}), &zmsg, m, len, gc_free_fn_c::Ptr{Void}, zmsg.handle)
         if rc != 0
-            throw(ZMQError(zmq_strerror()))
+            throw(ZMQError())
         end
         finalizer(zmsg, close)
         return zmsg
@@ -100,21 +100,21 @@ end
 function close(zmsg::Message)
     rc = ccall((:zmq_msg_close, zmq), Cint, (Ptr{Message},), &zmsg)
     if rc != 0
-        throw(ZMQError(zmq_strerror()))
+        throw(ZMQError())
     end
 end
 
 function get(zmsg::Message, property::Integer)
     val = ccall((:zmq_msg_get, zmq), Cint, (Ptr{Message}, Cint), &zmsg, property)
     if val < 0
-        throw(ZMQError(zmq_strerror()))
+        throw(ZMQError())
     end
     val
 end
 function set(zmsg::Message, property::Integer, value::Integer)
     rc = ccall((:zmq_msg_set, zmq), Cint, (Ptr{Message}, Cint, Cint), &zmsg, property, value)
     if rc < 0
-        throw(ZMQError(zmq_strerror()))
+        throw(ZMQError())
     end
 end
 
@@ -135,7 +135,7 @@ function send(socket::Socket, zmsg::Message, SNDMORE::Bool=false)
         rc = ccall((:zmq_msg_send, zmq), Cint, (Ptr{Message}, Ptr{Void}, Cint),
                     &zmsg, socket.data, (ZMQ_SNDMORE*SNDMORE) | ZMQ_DONTWAIT)
         if rc == -1
-            zmq_errno() == EAGAIN || throw(ZMQError(zmq_strerror()))
+            zmq_errno() == EAGAIN || throw(ZMQError())
             while (get_events(socket) & POLLOUT) == 0
                 wait(socket)
             end
@@ -167,7 +167,7 @@ function recv(socket::Socket)
         rc = ccall((:zmq_msg_recv, zmq), Cint, (Ptr{Message}, Ptr{Void}, Cint),
                     &zmsg, socket.data, ZMQ_DONTWAIT)
         if rc == -1
-            zmq_errno() == EAGAIN || throw(ZMQError(zmq_strerror()))
+            zmq_errno() == EAGAIN || throw(ZMQError())
             while (get_events(socket) & POLLIN) == 0
                 wait(socket)
             end
